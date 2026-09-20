@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "cn-hww/mooncontactbridge/wire"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn read(String) -> Book
+
+// Errors
+
+// Types and methods
+pub(all) struct Book {
+  cards : Array[Card]
+  issues : Array[Issue]
+} derive(Eq, @debug.Debug)
+pub fn Book::equal(Self, Self) -> Bool
+pub fn Book::not_equal(Self, Self) -> Bool
+pub fn Book::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Card {
+  opened_at : Int
+  fields : Array[Field]
+} derive(Eq, @debug.Debug)
+pub fn Card::equal(Self, Self) -> Bool
+pub fn Card::not_equal(Self, Self) -> Bool
+pub fn Card::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Field {
+  source_line : Int
+  head : String
+  name : String
+  value : String
+} derive(Eq, @debug.Debug)
+pub fn Field::equal(Self, Self) -> Bool
+pub fn Field::not_equal(Self, Self) -> Bool
+pub fn Field::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Issue {
+  line : Int
+  detail : String
+} derive(Eq, @debug.Debug)
+pub fn Issue::equal(Self, Self) -> Bool
+pub fn Issue::not_equal(Self, Self) -> Bool
+pub fn Issue::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits
