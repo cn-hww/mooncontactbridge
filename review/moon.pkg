@@ -1,0 +1,5 @@
+import {
+  "cn-hww/mooncontactbridge/wire",
+  "cn-hww/mooncontactbridge/ledger",
+  "moonbitlang/core/debug",
+}

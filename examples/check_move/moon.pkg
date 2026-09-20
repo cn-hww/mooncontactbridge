@@ -1,6 +1,6 @@
 import {
   "cn-hww/mooncontactbridge/wire",
-  "cn-hww/mooncontactbridge/ledger",
+  "cn-hww/mooncontactbridge/review",
 }
 
 pkgtype(kind: "executable")

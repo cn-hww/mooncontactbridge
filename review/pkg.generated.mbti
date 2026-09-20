@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "cn-hww/mooncontactbridge/review"
+
+import {
+  "cn-hww/mooncontactbridge/ledger",
+  "cn-hww/mooncontactbridge/wire",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn audit(@wire.Book, @wire.Book) -> Audit
+
+// Errors
+
+// Types and methods
+pub(all) struct Audit {
+  matched : Array[ContactReview]
+  removed : Array[CardRef]
+  added : Array[CardRef]
+  source_issues : Array[@wire.Issue]
+  target_issues : Array[@wire.Issue]
+} derive(Eq, @debug.Debug)
+pub fn Audit::equal(Self, Self) -> Bool
+pub fn Audit::is_clean(Self) -> Bool
+pub fn Audit::not_equal(Self, Self) -> Bool
+pub fn Audit::render(Self) -> String
+pub fn Audit::to_repr(Self) -> @debug.Repr
+
+pub(all) struct CardRef {
+  index : Int
+  name : String
+} derive(Eq, @debug.Debug)
+pub fn CardRef::equal(Self, Self) -> Bool
+pub fn CardRef::not_equal(Self, Self) -> Bool
+pub fn CardRef::to_repr(Self) -> @debug.Repr
+
+pub(all) struct ContactReview {
+  source : CardRef
+  target : CardRef
+  key : @ledger.MatchKey
+  findings : Array[@ledger.Finding]
+} derive(Eq, @debug.Debug)
+pub fn ContactReview::equal(Self, Self) -> Bool
+pub fn ContactReview::not_equal(Self, Self) -> Bool
+pub fn ContactReview::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits
