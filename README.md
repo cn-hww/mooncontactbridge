@@ -7,15 +7,20 @@ mooncontactbridge 先做一件小事：读取迁移前后的 vCard 4.0 文本，
 ```moonbit
 let old_book = @wire.read(old_vcf)
 let new_book = @wire.read(new_vcf)
-let findings = @ledger.compare(old_book.cards[0], new_book.cards[0])
+let alignment = @ledger.align(old_book, new_book)
+let pair = alignment.pairs[0]
+let findings = @ledger.compare(
+  old_book.cards[pair.before_index],
+  new_book.cards[pair.after_index],
+)
 ```
 
 目前有两个包：
 
 - `wire` 负责展开折行、拆分多张名片、保留原始字段头和值，并记录源行号；
-- `ledger` 逐项核对一张联系人卡，区分字段整体消失与同名字段内容变化。
+- `ledger` 先用 UID、邮箱或电话号码配对联系人，再逐项区分字段消失、字段值变化和参数变化。
 
-解析器要求每张卡包含 `VERSION:4.0` 和 `FN`。参数和未知的 `X-` 字段会原样进入模型，便于后续检查。第一版按调用方指定的联系人卡进行比较，暂不猜测两本通讯录中谁和谁是同一个人。
+解析器要求每张卡包含 `VERSION:4.0` 和 `FN`。参数和未知的 `X-` 字段会原样进入模型，便于后续检查。联系人配对只接受唯一候选；若多个联系人共享号码或邮箱，会保留为未匹配项，交给调用方决定。
 
 运行示例：
 

@@ -7,11 +7,22 @@ import {
 }
 
 // Values
+pub fn align(@wire.Book, @wire.Book) -> Alignment
+
 pub fn compare(@wire.Card, @wire.Card) -> Array[Finding]
 
 // Errors
 
 // Types and methods
+pub(all) struct Alignment {
+  pairs : Array[Pairing]
+  removed : Array[Int]
+  added : Array[Int]
+} derive(Eq, @debug.Debug)
+pub fn Alignment::equal(Self, Self) -> Bool
+pub fn Alignment::not_equal(Self, Self) -> Bool
+pub fn Alignment::to_repr(Self) -> @debug.Repr
+
 pub(all) enum Finding {
   Missing(String, String)
   Changed(String, String, String)
@@ -21,6 +32,24 @@ pub fn Finding::describe(Self) -> String
 pub fn Finding::equal(Self, Self) -> Bool
 pub fn Finding::not_equal(Self, Self) -> Bool
 pub fn Finding::to_repr(Self) -> @debug.Repr
+
+pub(all) enum MatchKey {
+  Uid(String)
+  Email(String)
+  Telephone(String)
+} derive(Eq, @debug.Debug)
+pub fn MatchKey::equal(Self, Self) -> Bool
+pub fn MatchKey::not_equal(Self, Self) -> Bool
+pub fn MatchKey::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Pairing {
+  before_index : Int
+  after_index : Int
+  key : MatchKey
+} derive(Eq, @debug.Debug)
+pub fn Pairing::equal(Self, Self) -> Bool
+pub fn Pairing::not_equal(Self, Self) -> Bool
+pub fn Pairing::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
