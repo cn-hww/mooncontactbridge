@@ -25,6 +25,7 @@ pub fn Alignment::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Finding {
   Missing(String, String)
+  Added(String, String)
   Changed(String, String, String)
   ParametersChanged(String, String, String)
 } derive(Eq, @debug.Debug)

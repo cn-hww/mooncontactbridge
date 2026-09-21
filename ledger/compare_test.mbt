@@ -19,14 +19,31 @@ test "report missing and rewritten contact details" {
 }
 
 ///|
-test "accept a value when one of several copies survives" {
+test "report an extra value when one of several copies survives" {
   let before = one_card(
     "BEGIN:VCARD\nVERSION:4.0\nFN:A\nEMAIL:a@home.test\nEND:VCARD\n",
   )
   let after = one_card(
     "BEGIN:VCARD\nVERSION:4.0\nFN:A\nEMAIL:a@work.test\nEMAIL:a@home.test\nEND:VCARD\n",
   )
-  assert_eq(@ledger.compare(before, after), [])
+  assert_eq(@ledger.compare(before, after), [
+    @ledger.Added("EMAIL", "a@work.test"),
+  ])
+}
+
+///|
+test "report target-only contact details after source findings" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nNOTE:old\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nNOTE:new\nTEL:12345\nEMAIL:a@example.test\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [
+    @ledger.Changed("NOTE", "old", "new"),
+    @ledger.Added("TEL", "12345"),
+    @ledger.Added("EMAIL", "a@example.test"),
+  ])
 }
 
 ///|

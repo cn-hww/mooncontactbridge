@@ -25,6 +25,7 @@ pub(all) struct AcceptancePolicy {
   allow_added_contacts : Bool
   allow_removed_contacts : Bool
   allow_missing_fields : Bool
+  allow_added_fields : Bool
   allow_changed_values : Bool
   allow_parameter_changes : Bool
   allow_input_issues : Bool
@@ -70,6 +71,7 @@ pub(all) enum Violation {
   RemovedContact(Int, String)
   AddedContact(Int, String)
   MissingField(Int, String, String)
+  AddedField(Int, String, String)
   ChangedValue(Int, String, String, String)
   ChangedParameters(Int, String, String, String)
 } derive(Eq, @debug.Debug)

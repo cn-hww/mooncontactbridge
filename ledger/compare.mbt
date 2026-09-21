@@ -1,6 +1,7 @@
 ///|
 pub(all) enum Finding {
   Missing(String, String)
+  Added(String, String)
   Changed(String, String, String)
   ParametersChanged(String, String, String)
 } derive(Eq, Debug)
@@ -97,6 +98,14 @@ pub fn compare(before : @wire.Card, after : @wire.Card) -> Array[Finding] {
       None => ()
     }
   }
+  for target_index = 0
+      target_index < after.fields.length()
+      target_index = target_index + 1 {
+    let target = after.fields[target_index]
+    if !target_claimed[target_index] && target.name != "VERSION" {
+      findings.push(Added(target.name, target.value))
+    }
+  }
   findings
 }
 
@@ -104,6 +113,7 @@ pub fn compare(before : @wire.Card, after : @wire.Card) -> Array[Finding] {
 pub fn Finding::describe(self : Finding) -> String {
   match self {
     Missing(name, value) => "missing \{name}: \{value}"
+    Added(name, value) => "added \{name}: \{value}"
     Changed(name, old, current) => "changed \{name}: \{old} -> \{current}"
     ParametersChanged(name, old, current) =>
       "changed parameters for \{name}: \{old} -> \{current}"

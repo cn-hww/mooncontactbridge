@@ -45,3 +45,18 @@ test "input diagnostics fail both built-in policies" {
     @review.InvalidSource(1, "content outside a card"),
   ])
 }
+
+///|
+test "strict policy rejects fields added to a matched contact" {
+  let source = @wire.read(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:Ada\nUID:a\nEND:VCARD\n",
+  )
+  let target = @wire.read(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:Ada\nUID:a\nEMAIL:ada@example.test\nEND:VCARD\n",
+  )
+  let audit = @review.audit(source, target)
+  assert_eq(@review.evaluate(audit, @review.strict_policy()), [
+    @review.AddedField(0, "EMAIL", "ada@example.test"),
+  ])
+  assert_false(@review.passes(audit, @review.additive_policy()))
+}

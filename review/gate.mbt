@@ -3,6 +3,7 @@ pub(all) struct AcceptancePolicy {
   allow_added_contacts : Bool
   allow_removed_contacts : Bool
   allow_missing_fields : Bool
+  allow_added_fields : Bool
   allow_changed_values : Bool
   allow_parameter_changes : Bool
   allow_input_issues : Bool
@@ -15,6 +16,7 @@ pub(all) enum Violation {
   RemovedContact(Int, String)
   AddedContact(Int, String)
   MissingField(Int, String, String)
+  AddedField(Int, String, String)
   ChangedValue(Int, String, String, String)
   ChangedParameters(Int, String, String, String)
 } derive(Eq, Debug)
@@ -37,6 +39,7 @@ pub fn strict_policy() -> AcceptancePolicy {
     allow_added_contacts: false,
     allow_removed_contacts: false,
     allow_missing_fields: false,
+    allow_added_fields: false,
     allow_changed_values: false,
     allow_parameter_changes: false,
     allow_input_issues: false,
@@ -66,6 +69,10 @@ pub fn evaluate(audit : Audit, policy : AcceptancePolicy) -> Array[Violation] {
         @ledger.Missing(name, value) =>
           if !policy.allow_missing_fields {
             violations.push(MissingField(contact.source.index, name, value))
+          }
+        @ledger.Added(name, value) =>
+          if !policy.allow_added_fields {
+            violations.push(AddedField(contact.target.index, name, value))
           }
         @ledger.Changed(name, old, current) =>
           if !policy.allow_changed_values {
