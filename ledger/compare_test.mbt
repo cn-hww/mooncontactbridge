@@ -28,3 +28,40 @@ test "accept a value when one of several copies survives" {
   )
   assert_eq(@ledger.compare(before, after), [])
 }
+
+///|
+test "count repeated fields independently" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nEMAIL:same@example.test\nEMAIL:same@example.test\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nEMAIL:same@example.test\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [
+    @ledger.Missing("EMAIL", "same@example.test"),
+  ])
+}
+
+///|
+test "reserve exact values before pairing rewritten fields" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nEMAIL:a@example.test\nEMAIL:b@example.test\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nEMAIL:b@example.test\nEMAIL:c@example.test\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [
+    @ledger.Changed("EMAIL", "a@example.test", "c@example.test"),
+  ])
+}
+
+///|
+test "do not reuse one parameterized telephone field" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nTEL;TYPE=cell:12345\nTEL;TYPE=home:12345\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nTEL;TYPE=cell:12345\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [@ledger.Missing("TEL", "12345")])
+}
