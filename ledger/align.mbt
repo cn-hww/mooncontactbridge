@@ -38,9 +38,9 @@ pub extend Alignment with Eq::{not_equal, equal}
 pub extend Alignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-fn card_has(card : @wire.Card, name : String, value : String) -> Bool {
+fn card_has(card : @wire.Card, name : String, identity : String) -> Bool {
   for field in card.fields {
-    if field.name == name && field.value == value {
+    if field.name == name && identity_value(name, field.value) == identity {
       return true
     }
   }
@@ -55,13 +55,14 @@ fn locate_unique(
   name : String,
 ) -> (Int, String)? {
   for field in source.fields {
-    if field.name != name || field.value.length() == 0 {
+    let identity = identity_value(name, field.value)
+    if field.name != name || identity.length() == 0 {
       continue
     }
     let mut found = -1
     let mut count = 0
     for index = 0; index < targets.length(); index = index + 1 {
-      if !claimed[index] && card_has(targets[index], name, field.value) {
+      if !claimed[index] && card_has(targets[index], name, identity) {
         found = index
         count += 1
       }
