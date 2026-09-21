@@ -9,11 +9,12 @@ let old_book = @wire.read(old_vcf)
 let new_book = @wire.read(new_vcf)
 let report = @review.audit(old_book, new_book)
 println(report.render())
+let portable_copy = @wire.write(old_book.cards)
 ```
 
-目前有两个包：
+目前有三个包：
 
-- `wire` 负责展开折行、拆分多张名片、保留原始字段头和值，并记录源行号；
+- `wire` 负责展开折行、拆分多张名片、保留原始字段头和值，并按 75 个 UTF-8 字节折行写回 vCard；
 - `ledger` 先用 UID、邮箱或电话号码配对联系人，再逐项区分字段消失、字段值变化和参数变化；
 - `review` 生成整本通讯录的确定性报告，并带上新增、删除联系人和输入诊断。
 

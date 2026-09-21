@@ -8,6 +8,8 @@ import {
 // Values
 pub fn read(String) -> Book
 
+pub fn write(Array[Card]) -> String
+
 // Errors
 
 // Types and methods

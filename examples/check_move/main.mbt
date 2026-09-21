@@ -7,4 +7,6 @@ fn main {
     "BEGIN:VCARD\nVERSION:4.0\nFN:Mei Lin\nTEL:+886900001\nEND:VCARD\n",
   )
   println(@review.audit(old_copy, new_copy).render())
+  println("rewritten source:")
+  println(@wire.write(old_copy.cards))
 }
