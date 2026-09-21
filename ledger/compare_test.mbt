@@ -65,3 +65,38 @@ test "do not reuse one parameterized telephone field" {
   )
   assert_eq(@ledger.compare(before, after), [@ledger.Missing("TEL", "12345")])
 }
+
+///|
+test "ignore parameter order and case-only spelling changes" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nTEL;TYPE=cell;PREF=1:12345\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\ntel;pref=1;type=CELL:12345\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [])
+}
+
+///|
+test "keep quoted semicolons inside reordered parameters" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nX-TEST;X-LABEL=\"a;b\";TYPE=home:value\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nx-test;type=HOME;x-label=\"a;b\":value\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [])
+}
+
+///|
+test "report a real parameter value change" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nTEL;TYPE=cell:12345\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nTEL;TYPE=home:12345\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [
+    @ledger.ParametersChanged("TEL", "TEL;TYPE=cell", "TEL;TYPE=home"),
+  ])
+}

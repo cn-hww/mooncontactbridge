@@ -30,7 +30,7 @@ pub fn compare(before : @wire.Card, after : @wire.Card) -> Array[Finding] {
       let target = after.fields[target_index]
       if !target_claimed[target_index] &&
         target.name == source.name &&
-        target.head == source.head &&
+        same_head(target.head, source.head) &&
         target.value == source.value {
         source_claimed[source_index] = true
         target_claimed[target_index] = true
