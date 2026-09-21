@@ -6,7 +6,10 @@ fn main {
   let new_copy = @wire.read(
     "BEGIN:VCARD\nVERSION:4.0\nFN:Mei Lin\nTEL:+886900001\nEND:VCARD\n",
   )
-  println(@review.audit(old_copy, new_copy).render())
+  let audit = @review.audit(old_copy, new_copy)
+  println(audit.render())
+  let violations = @review.evaluate(audit, @review.strict_policy())
+  println("strict policy violations: \{violations.length()}")
   println("rewritten source:")
   println(@wire.write(old_copy.cards))
 }

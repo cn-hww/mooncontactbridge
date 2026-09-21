@@ -9,6 +9,7 @@ let old_book = @wire.read(old_vcf)
 let new_book = @wire.read(new_vcf)
 let report = @review.audit(old_book, new_book)
 println(report.render())
+let accepted = @review.passes(report, @review.additive_policy())
 let portable_copy = @wire.write(old_book.cards)
 ```
 
@@ -23,6 +24,8 @@ let portable_copy = @wire.write(old_book.cards)
 同一联系人可以包含多个同名字段。审计时每个目标字段最多匹配一次，因此重复邮箱、电话或地址少了一项也会报告，而不会被另一项掩盖。
 
 参数比较遵循内容行的语义：属性名和参数名不区分大小写，参数顺序不影响结果，`TYPE` 的值也按不区分大小写处理。
+
+`strict_policy` 要求迁移结果完全一致；`additive_policy` 允许增加联系人，但仍拒绝删除联系人、字段损失、内容改写、参数变化和输入格式错误。`evaluate` 会返回结构化违规项，便于接入自动化检查。
 
 运行示例：
 

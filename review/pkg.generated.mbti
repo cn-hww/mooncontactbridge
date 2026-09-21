@@ -8,11 +8,31 @@ import {
 }
 
 // Values
+pub fn additive_policy() -> AcceptancePolicy
+
 pub fn audit(@wire.Book, @wire.Book) -> Audit
+
+pub fn evaluate(Audit, AcceptancePolicy) -> Array[Violation]
+
+pub fn passes(Audit, AcceptancePolicy) -> Bool
+
+pub fn strict_policy() -> AcceptancePolicy
 
 // Errors
 
 // Types and methods
+pub(all) struct AcceptancePolicy {
+  allow_added_contacts : Bool
+  allow_removed_contacts : Bool
+  allow_missing_fields : Bool
+  allow_changed_values : Bool
+  allow_parameter_changes : Bool
+  allow_input_issues : Bool
+} derive(Eq, @debug.Debug)
+pub fn AcceptancePolicy::equal(Self, Self) -> Bool
+pub fn AcceptancePolicy::not_equal(Self, Self) -> Bool
+pub fn AcceptancePolicy::to_repr(Self) -> @debug.Repr
+
 pub(all) struct Audit {
   matched : Array[ContactReview]
   removed : Array[CardRef]
@@ -43,6 +63,19 @@ pub(all) struct ContactReview {
 pub fn ContactReview::equal(Self, Self) -> Bool
 pub fn ContactReview::not_equal(Self, Self) -> Bool
 pub fn ContactReview::to_repr(Self) -> @debug.Repr
+
+pub(all) enum Violation {
+  InvalidSource(Int, String)
+  InvalidTarget(Int, String)
+  RemovedContact(Int, String)
+  AddedContact(Int, String)
+  MissingField(Int, String, String)
+  ChangedValue(Int, String, String, String)
+  ChangedParameters(Int, String, String, String)
+} derive(Eq, @debug.Debug)
+pub fn Violation::equal(Self, Self) -> Bool
+pub fn Violation::not_equal(Self, Self) -> Bool
+pub fn Violation::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
