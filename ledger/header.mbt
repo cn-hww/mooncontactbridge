@@ -44,6 +44,16 @@ fn remove_quotes(value : String) -> String {
 }
 
 ///|
+fn canonical_type_values(value : String) -> String {
+  let values : Array[String] = []
+  for part in value.split(",") {
+    values.push(part.trim().to_owned().to_upper())
+  }
+  values.sort_by(compare_text)
+  values.join(",")
+}
+
+///|
 fn canonical_parameter(parameter : String) -> String {
   let name = StringBuilder()
   let value = StringBuilder()
@@ -63,11 +73,20 @@ fn canonical_parameter(parameter : String) -> String {
   let canonical_name = name.to_string().to_upper()
   let unquoted = remove_quotes(value.to_string())
   let canonical_value = if canonical_name == "TYPE" {
-    unquoted.to_upper()
+    canonical_type_values(unquoted)
   } else {
     unquoted
   }
   canonical_name + "=" + canonical_value
+}
+
+///|
+fn canonical_property_name(value : String) -> String {
+  let mut result = ""
+  for part in value.split(".") {
+    result = part.to_owned()
+  }
+  result.to_upper()
 }
 
 ///|
@@ -81,10 +100,11 @@ fn canonical_head(head : String) -> String {
     parameters.push(canonical_parameter(parts[index]))
   }
   parameters.sort_by(compare_text)
+  let property_name = canonical_property_name(parts[0])
   if parameters.length() == 0 {
-    parts[0].to_upper()
+    property_name
   } else {
-    parts[0].to_upper() + ";" + parameters.join(";")
+    property_name + ";" + parameters.join(";")
   }
 }
 

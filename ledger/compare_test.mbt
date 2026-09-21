@@ -95,6 +95,32 @@ test "ignore parameter order and case-only spelling changes" {
 }
 
 ///|
+test "ignore property group renumbering and TYPE value order" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nitem1.TEL;TYPE=home,voice:12345\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nitem7.tel;type=VOICE,HOME:12345\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [])
+}
+
+///|
+test "report a different TYPE value after normalizing its order" {
+  let before = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nTEL;TYPE=home,voice:12345\nEND:VCARD\n",
+  )
+  let after = one_card(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nTEL;TYPE=cell,home:12345\nEND:VCARD\n",
+  )
+  assert_eq(@ledger.compare(before, after), [
+    @ledger.ParametersChanged(
+      "TEL", "TEL;TYPE=home,voice", "TEL;TYPE=cell,home",
+    ),
+  ])
+}
+
+///|
 test "keep quoted semicolons inside reordered parameters" {
   let before = one_card(
     "BEGIN:VCARD\nVERSION:4.0\nFN:A\nUID:a\nX-TEST;X-LABEL=\"a;b\";TYPE=home:value\nEND:VCARD\n",
