@@ -50,6 +50,7 @@ fn card_has(card : @wire.Card, name : String, identity : String) -> Bool {
 ///|
 fn locate_unique(
   source : @wire.Card,
+  sources : Array[@wire.Card],
   targets : Array[@wire.Card],
   claimed : Array[Bool],
   name : String,
@@ -59,15 +60,24 @@ fn locate_unique(
     if field.name != name || identity.length() == 0 {
       continue
     }
+    let mut source_count = 0
+    for card in sources {
+      if card_has(card, name, identity) {
+        source_count += 1
+      }
+    }
+    if source_count != 1 {
+      continue
+    }
     let mut found = -1
     let mut count = 0
     for index = 0; index < targets.length(); index = index + 1 {
-      if !claimed[index] && card_has(targets[index], name, identity) {
+      if card_has(targets[index], name, identity) {
         found = index
         count += 1
       }
     }
-    if count == 1 {
+    if count == 1 && !claimed[found] {
       return Some((found, field.value))
     }
   }
@@ -77,16 +87,17 @@ fn locate_unique(
 ///|
 fn choose_pair(
   source : @wire.Card,
+  sources : Array[@wire.Card],
   targets : Array[@wire.Card],
   claimed : Array[Bool],
 ) -> (Int, MatchKey)? {
-  match locate_unique(source, targets, claimed, "UID") {
+  match locate_unique(source, sources, targets, claimed, "UID") {
     Some((index, value)) => Some((index, Uid(value)))
     None =>
-      match locate_unique(source, targets, claimed, "EMAIL") {
+      match locate_unique(source, sources, targets, claimed, "EMAIL") {
         Some((index, value)) => Some((index, Email(value)))
         None =>
-          match locate_unique(source, targets, claimed, "TEL") {
+          match locate_unique(source, sources, targets, claimed, "TEL") {
             Some((index, value)) => Some((index, Telephone(value)))
             None => None
           }
@@ -105,7 +116,13 @@ pub fn align(before : @wire.Book, after : @wire.Book) -> Alignment {
   for before_index = 0
       before_index < before.cards.length()
       before_index = before_index + 1 {
-    match choose_pair(before.cards[before_index], after.cards, claimed) {
+    match
+      choose_pair(
+        before.cards[before_index],
+        before.cards,
+        after.cards,
+        claimed,
+      ) {
       Some((after_index, key)) => {
         claimed[after_index] = true
         pairs.push({ before_index, after_index, key, })

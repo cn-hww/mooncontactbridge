@@ -88,3 +88,48 @@ test "leave normalized telephone collisions unresolved" {
   assert_eq(result.removed, [0])
   assert_eq(result.added, [0, 1])
 }
+
+///|
+test "do not choose the first source when a UID is duplicated" {
+  let before = book(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:First\nUID:shared\nEND:VCARD\nBEGIN:VCARD\nVERSION:4.0\nFN:Second\nUID:shared\nEND:VCARD\n",
+  )
+  let after = book("BEGIN:VCARD\nVERSION:4.0\nFN:Only\nUID:shared\nEND:VCARD\n")
+  let result = @ledger.align(before, after)
+  assert_eq(result.pairs, [])
+  assert_eq(result.removed, [0, 1])
+  assert_eq(result.added, [0])
+}
+
+///|
+test "a claimed target does not make a duplicated UID unique" {
+  let before = book(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:First\nTEL:111\nEND:VCARD\nBEGIN:VCARD\nVERSION:4.0\nFN:Second\nUID:shared\nEND:VCARD\n",
+  )
+  let after = book(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:First\nUID:shared\nTEL:111\nEND:VCARD\nBEGIN:VCARD\nVERSION:4.0\nFN:Second\nUID:shared\nEND:VCARD\n",
+  )
+  let result = @ledger.align(before, after)
+  assert_eq(result.pairs, [
+    { before_index: 0, after_index: 0, key: @ledger.Telephone("111"), },
+  ])
+  assert_eq(result.removed, [1])
+  assert_eq(result.added, [1])
+}
+
+///|
+test "unique telephone numbers can disambiguate shared email" {
+  let before = book(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:One\nEMAIL:family@example.test\nTEL:111\nEND:VCARD\nBEGIN:VCARD\nVERSION:4.0\nFN:Two\nEMAIL:family@example.test\nTEL:222\nEND:VCARD\n",
+  )
+  let after = book(
+    "BEGIN:VCARD\nVERSION:4.0\nFN:Two\nEMAIL:family@example.test\nTEL:222\nEND:VCARD\nBEGIN:VCARD\nVERSION:4.0\nFN:One\nEMAIL:family@example.test\nTEL:111\nEND:VCARD\n",
+  )
+  let result = @ledger.align(before, after)
+  assert_eq(result.pairs, [
+    { before_index: 0, after_index: 1, key: @ledger.Telephone("111"), },
+    { before_index: 1, after_index: 0, key: @ledger.Telephone("222"), },
+  ])
+  assert_eq(result.removed, [])
+  assert_eq(result.added, [])
+}
